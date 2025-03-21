@@ -1,0 +1,28 @@
+---
+- name: Scan targets with NMAP
+  hosts: webservers
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: Install NMAP
+    apt:
+        name: nmap
+        state: latest
+        update_cache: True
+
+  - name: Copy NMAP targets list
+    copy:
+        src: ./targets.txt
+        dest: ~/targets.txt
+        force: yes
+        mode: 0664
+
+  - name: Run NMAP
+    shell: "nmap -iL ~/targets.txt -p 80 -oG -"
+    register: nmap_result
+
+  - name: NMAP output
+    debug:
+      msg: "{{ nmap_result.stdout_lines }}"
+
